@@ -1,0 +1,26 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "f78c0b43-3f6f-4ab8-80ea-6f1234856451": {
+      "ProjectGuid": "f78c0b43-3f6f-4ab8-80ea-6f1234856451",
+      "DisplayName": "ChatRoom",
+      "ColorIndex": 0
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
+    },
+    "9c6fdee8-eee7-4aa3-adfa-b1e7aaf3775f": {
+      "ProjectGuid": "9c6fdee8-eee7-4aa3-adfa-b1e7aaf3775f",
+      "DisplayName": "DataLayer",
+      "ColorIndex": 1
+    },
+    "efb86dd4-b081-4b9a-ae98-26dbaf2c1176": {
+      "ProjectGuid": "efb86dd4-b081-4b9a-ae98-26dbaf2c1176",
+      "DisplayName": "CoreLayer",
+      "ColorIndex": 2
+    }
+  },
+  "NextColorIndex": 3
+}

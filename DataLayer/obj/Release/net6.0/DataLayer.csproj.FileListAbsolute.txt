@@ -1,0 +1,12 @@
+D:\C#Projects\DotNet6\DataLayer\bin\Release\net6.0\DataLayer.deps.json
+D:\C#Projects\DotNet6\DataLayer\bin\Release\net6.0\DataLayer.dll
+D:\C#Projects\DotNet6\DataLayer\bin\Release\net6.0\ref\DataLayer.dll
+D:\C#Projects\DotNet6\DataLayer\bin\Release\net6.0\DataLayer.pdb
+D:\C#Projects\DotNet6\DataLayer\obj\Release\net6.0\DataLayer.csproj.AssemblyReference.cache
+D:\C#Projects\DotNet6\DataLayer\obj\Release\net6.0\DataLayer.GeneratedMSBuildEditorConfig.editorconfig
+D:\C#Projects\DotNet6\DataLayer\obj\Release\net6.0\DataLayer.AssemblyInfoInputs.cache
+D:\C#Projects\DotNet6\DataLayer\obj\Release\net6.0\DataLayer.AssemblyInfo.cs
+D:\C#Projects\DotNet6\DataLayer\obj\Release\net6.0\DataLayer.csproj.CoreCompileInputs.cache
+D:\C#Projects\DotNet6\DataLayer\obj\Release\net6.0\DataLayer.dll
+D:\C#Projects\DotNet6\DataLayer\obj\Release\net6.0\ref\DataLayer.dll
+D:\C#Projects\DotNet6\DataLayer\obj\Release\net6.0\DataLayer.pdb
