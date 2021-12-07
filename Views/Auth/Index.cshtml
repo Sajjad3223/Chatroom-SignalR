@@ -1,0 +1,22 @@
+﻿
+@{
+    ViewData["Title"] = "ورود به حساب";
+}
+
+@section Styles{
+    <link rel="stylesheet" href="/css/main.css" />
+}
+
+<div class="container">
+    <div id="login" class="auth" style="display: none;">
+        <partial name="auth/_Login"/>
+    </div>
+    <div id="register" class="auth">
+        <partial name="auth/_Register"/>
+    </div>
+</div>
+
+
+@section Scripts{
+    <script src="/js/custom.js"></script>
+}

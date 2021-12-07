@@ -1,0 +1,349 @@
+﻿@using ChatRoom.utils
+@model IEnumerable<DataLayer.Entities.ChatGroup>
+
+@{
+    ViewData["Title"] = "چت های من";
+}
+
+@section Styles{
+    <link rel="stylesheet" href="/css/site.css" />
+}
+
+<!-- #region Create Group Modal -->
+<!-- Button trigger modal -->
+	<!-- Modal -->
+	<div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+		<form class="modal-content" dir="rtl" onsubmit="CreateGroup(event)" enctype="multipart/form-data">
+		  <div class="modal-header">
+			<h5 class="modal-title">افزودن گروه</h5>
+			<button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"> X </button>
+		  </div>
+		  <div class="modal-body" >
+			<label for="groupName" class="form-label float-right"> نام گروه:</label>
+			<input type="text" class="form-control" id="groupName" placeholder="نام گروه ...">
+
+			<label for="image" class="form-label float-right"> تصویر گروه:</label>
+			<input type="file" accept="image/*" class="form-control" id="image" >
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+			<button type="submit" class="btn btn-primary">افزودن گروه</button>
+		  </div>
+		</form>
+	  </div>
+	</div>
+<!-- #endregion -->
+
+<div class="disconnected" style="display:none;">
+	<div>
+		<p>ارتباط با سرور قطع شد.</p>
+		<p>تلاش برای برقرای ارتباط ....</p>
+	</div>
+</div>
+
+<main class="content">
+    <div class="container p-0">
+
+		<h1 class="h3 mb-3">پیام های من</h1>
+
+		<div class="card">
+			<div class="row g-0">
+				<div class="col-12 col-lg-5 col-xl-3 border-right position-relative chatGroups " >
+
+					@await Component.InvokeAsync("UserInformations");
+
+					<div class="px-4 d-none d-md-block searchBox">
+						<div class="d-flex align-items-center">
+							<div class="flex-grow-1">
+								<input type="text" class="form-control my-3" onkeyup="search()" id="search-input" placeholder="Search...">
+							</div>
+						</div>
+					</div>
+
+					<div id="searchResult" style="display:none;">
+						<div class="alert alert-warning text-right">
+							چتی پیدا نشد
+						</div>
+					</div>
+
+					<div id="userChats">
+						@if(Model.Any())
+						{
+							@foreach(var chat in Model)
+							{
+								<a href="#" onclick="JoinGroup('@chat.group_token')" class="list-group-item list-group-item-action border-0" >
+									<div class="d-flex align-items-start">
+										<img src="/images/@chat.group_image" class="rounded-circle mr-1" width="40" height="40">
+										<div class="flex-grow-1 ml-3">
+											@chat.group_title
+										</div>
+									</div>
+								</a>
+							}
+						}
+					</div>
+
+					<hr class="d-block d-lg-none mt-1 mb-0">
+					<button id="btnCreateGroup" class="w-100 rounded btn bg-primary text-light"  
+					 data-bs-toggle="modal" data-bs-target="#createGroupModal">ایجاد گروه جدید</button>
+				</div>
+				<div class="col-12 col-lg-7 col-xl-9" id="groupContent" style="display:none;">
+					<div class="py-2 px-4 border-bottom d-none d-lg-block">
+						<div class="d-flex align-items-center py-1 text-right" dir="rtl">
+							<div class="position-relative">
+								<img id="group_Image" class="rounded-circle mr-1" width="40" height="40">
+							</div>
+							<div class="flex-grow-1 pl-3">
+								<strong id="group_Name"></strong>
+							</div>
+						</div>
+					</div>
+
+					<div class="position-relative">
+						<div class="chat-messages p-4">
+
+						</div>
+					</div>
+
+					<div class="flex-grow-0 py-3 px-4 border-top">
+						<form class="input-group" onsubmit="SendMessage(event)">
+							<input type="text" class="form-control" id="textInput" placeholder="Type your message">
+							<input type="file" class="form-control" id="fileInput">
+							<button class="btn btn-primary" type="submit" >Send</button>
+						</form>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</main>
+
+@section Scripts{
+	<script src="/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+    <script>
+		var currentGroupId = 0;
+		var userId = 0;
+		var connection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
+
+		$(function(){
+			if(Notification.permission !== "granted")
+				Notification.requestPermission();
+		})
+
+		connection.on("Setup",(id) => {
+			userId= id;
+			console.log(userId);
+		});
+
+		connection.on("ReceiveMessage",(chat) => {
+			$('#textInput').val("");
+			$('#fileInput').val('');
+			AddMessage(chat);
+		});
+
+		connection.on("ReceiveNotification",(chat) => {
+			if(Notification.permission === "granted"){
+				if(chat.group_id !== currentGroupId)
+				{
+					var norification = new Notification(chat.groupName, {
+						body:chat.chat_body,
+						icon:"/images/avatar2.png",
+						silent: false,
+						tag: chat.username
+					});
+
+				}
+			}
+		});
+
+		connection.on("GroupCreated",(name,token,image) => {
+			$(`<a href="#" onclick="JoinGroup('${token}')" class="list-group-item list-group-item-action border-0" data-id='${token}'>
+						<div class="d-flex align-items-start">
+							<img src="/images/${image}" class="rounded-circle mr-1" alt="${name}" width="40" height="40">
+							<div class="flex-grow-1 ml-3">
+								${name}
+						</div>
+					</div>
+				</a>`).insertAfter('.searchBox')[0];
+		});
+
+		connection.on("JoinedGroup",(group,chats) => {
+			$('.chat-messages').html('');
+			$('#groupContent').css("display","block");
+			$('#group_Name').html(group.group_title);
+			$('#group_Image').attr("src",`/images/${group.group_image}`);
+			currentGroupId = group.group_id;
+			for(var i in chats)
+			{
+				var chat = chats[i];
+				AddMessage(chat);
+			}
+		});
+
+		connection.on("Error",(message) => {
+			console.log(message);
+		});
+
+		function SendMessage(event){
+			event.preventDefault();
+			console.log(event);
+			var chatMessage = event.target[0].value;
+			var file = event.target[1].files[0];
+
+			var formData = new FormData();
+			formData.append("GroupId",currentGroupId);
+			formData.append("Message",chatMessage);
+			formData.append("AttachFile",file);
+
+			$.ajax({
+				url:"/home/SendMessage",
+				type:"post",
+				data:formData,
+				enctype:"multipart/form-data",
+				contentType:false,
+				processData:false
+			});
+		}
+
+		function CreateGroup(event){
+			event.preventDefault();
+			var groupName = event.target[1].value;
+			var groupImage = event.target[2].files[0];
+			var formData = new FormData();
+			formData.append("GroupName",groupName);
+			formData.append("GroupImage",groupImage);
+
+			$.ajax({
+				url:"/home/CreateGroup",
+				type:"post",
+				data:formData,
+				enctype:"multipart/form-data",
+				contentType:false,
+				processData:false
+			});
+			$('#createGroupModal').modal('hide');
+		}
+
+		function JoinGroup(token){
+			connection.invoke('JoinGroup',token,currentGroupId);
+		}
+
+		function JoinPrivateGroup(token){
+			connection.invoke('JoinPrivateGroup',token,currentGroupId);
+		}
+
+		function search(){
+			var search = document.getElementById('search-input');
+			var text = search.value;
+			if(text){
+				$('#searchResult').show();
+				$('#userChats').hide();
+				$.ajax({
+					url:"/home/Search?text=" + text,
+					type:"get"
+				}).done(data =>{
+					$("#searchResult").html("")
+					if(data.length > 0)
+					{
+						for(var i in data)
+						{
+							console.log(data[i])
+							if(data[i].isUser)
+								$('#searchResult').prepend(`
+								<a href="#" onclick="JoinPrivateGroup('${data[i].token}')" class="list-group-item list-group-item-action border-0" >
+									<div class="d-flex align-items-start">
+										<img src="/images/${data[i].imageName}" class="rounded-circle mr-1" alt="${data[i].title}" width="40" height="40">
+										<div class="flex-grow-1 ml-3">
+											${data[i].title}
+										</div>
+									</div>
+								</a>
+								`);
+							else
+								$('#searchResult').prepend(`
+								<a href="#" onclick="JoinGroup('${data[i].token}')" class="list-group-item list-group-item-action border-0" >
+									<div class="d-flex align-items-start">
+										<img src="/images/${data[i].imageName}" class="rounded-circle mr-1" alt="${data[i].title}" width="40" height="40">
+										<div class="flex-grow-1 ml-3">
+											${data[i].title}
+										</div>
+									</div>
+								</a>
+								`);
+						}
+					}
+					else{
+						$('#searchResult').append(`
+							<div class="alert alert-warning text-right"> چتی پیدا نشد </div>
+						`);
+					}
+				})
+			}
+			else{
+				$('#searchResult').hide();
+				$('#userChats').show();
+			}
+		}
+
+		function AddMessage(chat){
+			console.log(chat)
+			var hasAttachFile = false;
+			if(chat.attach_file)
+				hasAttachFile = true;
+			$('.chat-messages').append(`
+			<div class="${(chat.sender_id === userId) ? `chat-message-right` : `chat-message-left`} pb-4">
+				<div>
+					<img src="/images/${chat.user_avatar}" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
+					<div class="text-muted small text-nowrap mt-2">${chat.chat_date}</div>
+				</div>
+				<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
+					<div class="font-weight-bold mb-1">${chat.username}</div>
+					${hasAttachFile ? `<a href="/files/${chat.attach_file}" target="_blank">${chat.chat_body}</a>` : `${chat.chat_body}`}
+				</div>
+			</div>
+			`);
+		}
+
+		async function Start(){
+			try{
+				await connection.start();
+				console.log('start');
+				$('.disconnected').hide();
+			}
+			catch (e){
+				console.log('error');
+				$('.disconnected').show();
+				setTimeout(Start,6000);
+			}
+		}
+
+		Start();
+		connection.onclose(Start);
+		
+		function SelectImage(event){
+			event.preventDefault();
+			$("#imageInput").trigger('click');
+		}
+
+		function SetUserImage(event){
+			console.log(event);
+			var image = event.target.files[0];
+			console.log(image);
+			var formData = new FormData();
+			formData.append("image",image);
+			console.log(formData);
+			$.ajax({
+				url:"/home/SetUserAvatar",
+				type:"post",
+				data:formData,
+				enctype:"multipart/form-data",
+				contentType:false,
+				processData:false
+			}).done(result => {
+				$('#userInformations').html(result);
+			});
+		}
+    </script>
+}

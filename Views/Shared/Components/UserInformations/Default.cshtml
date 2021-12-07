@@ -1,0 +1,12 @@
+﻿@model DataLayer.Entities.User
+
+<div class="p-3 row" id="userInformations">
+	@if(!string.IsNullOrEmpty(Model.user_avatar)){
+		<img src="/images/users/@Model.user_avatar" onmousedown="SelectImage(event)" class="rounded rounded-pill" width="40" onclick="" height="40" />
+		<input type="file" class="col-5 form-input" id="imageInput" accept="image/*" multiple="false" onchange="SetUserImage(event)" style="display:none;"/>
+	}
+	else{
+		<input type="file" class="col-5 form-input" id="imageInput" accept="image/*" multiple="false" onchange="SetUserImage(event)"/>
+	}
+	<span class="col-5 mx-auto">@Model.username</span>
+</div>

@@ -1,0 +1,11 @@
+﻿@model LoginViewModel;
+
+<form asp-controller="Auth" asp-action="Login" method="post">
+    <h1 class="text-center">ورود به حساب</h1>
+    <label>نام کاربری : </label>
+    <input asp-for="UserName" class="form-control" />
+    <label>کلمه عبور : </label>
+    <input asp-for="Password" class="form-control" />
+    <button class="btn btn-success mt-4 float-end" style="margin-right: 8px;">ورود به حساب</button>
+    <button type="button" id="register-btn" class="btn btn-primary mt-4">ثبت نام</button>
+</form>
